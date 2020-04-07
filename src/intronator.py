@@ -19,6 +19,7 @@ TO DO:
 from __future__ import absolute_import, division, print_function
 
 import argparse, os, re, subprocess
+import gffpandas.gffpandas as gffpd
 import source
 
 __author__ = "Fernando Pozo"
@@ -36,13 +37,17 @@ def main():
     parser.add_argument('-f', '--file', type=str, help='Custom or not GENCODE gff file.')                        
     args = parser.parse_args()
 
+    GENOMESDIR = '/local/fpozoc/MEGA/projects/qsplice/data/genomes'
+    INTRONSDIR = '/local/fpozoc/MEGA/projects/qsplice/data/introns'
+
     if args.gencode:
-        path = source.Gencode(version=args.gencode, specie='human').download(outdir='../data/genomes', type='gff3')
+        path = source.Gencode(version=args.gencode, specie='human').download(outdir=GENOMESDIR, type='gff3')
     else:
         path = args.file
 
-    generate_introns(path, intronsdir='../data/introns')
-
+    gff_path = generate_introns(path, intronsdir=INTRONSDIR)
+    introns = process_gff(gff_path)
+    introns.to_csv(os.path.join(INTRONSDIR, gff_path), index=None, sep='\t')
 
 def create_dir(dirpath: str) -> str: 
     if not os.path.exists(dirpath):
@@ -63,17 +68,23 @@ def generate_introns(inpath: str, intronsdir: str = '.') -> str:
     subprocess.call('which rg || apt install rg', shell=True)
 
     create_dir(intronsdir)
-    intronsname = os.path.basename(re.sub(r'gff.*', 'introns.gff', inpath))
+    intronsname = os.path.basename(re.sub(r'gff.*', 'introns.tsv', inpath))
     outpath = os.path.abspath(os.path.join(intronsdir, intronsname))
 
     # cmd_awk = r"awk -F'[\t=]' '{print $1,$4,$5,$7,$10}' OFS='\t'"
     # cmd_gt = f"zcat {inpath} | rg '(#|gene_type=protein_coding)' | gt gff3 -retainids -addintrons | rg 'intron' | {cmd_awk} > {outpath}"
     cmd_gt = f"zcat {inpath} | gt gff3 -tidy -retainids -addintrons > {outpath}" # tidy option described here http://genometools.org/pipermail/gt-users/2015-August/000794.html
     subprocess.call(cmd_gt, shell=True)
-
-    print(f'{outpath} has been generated.')
+    print(f'Introns has been generated in: {os.path.dirname(outpath)}')
     return outpath
-        
+
+
+def process_gff(inpath):
+    df = gffpd.read_gff3(inpath).attributes_to_columns()
+    df = df[['seq_id', 'source', 'type', 'start', 'end', 'strand', 'exon_id', 'exon_number', 'gene_name', 'gene_id', 'gene_type', 'transcript_id', 'transcript_type']]
+    print(f'Introns has been processed and stored here: {os.path.abspath(inpath)}\nPlease, wait while our script is saving the data.')
+    return df
+
 
 if __name__ == "__main__":
     main()
