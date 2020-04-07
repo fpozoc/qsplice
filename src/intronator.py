@@ -37,11 +37,11 @@ def main():
     args = parser.parse_args()
 
     if args.gencode:
-        path = source.Gencode(version=args.gencode, specie='human').download(outdir='genomes', type='gff3')
+        path = source.Gencode(version=args.gencode, specie='human').download(outdir='../data/genomes', type='gff3')
     else:
         path = args.file
 
-    generate_introns(path, intronsdir='introns')
+    generate_introns(path, intronsdir='../data/introns')
 
 
 def create_dir(dirpath: str) -> str: 
@@ -60,15 +60,15 @@ def generate_introns(inpath: str, intronsdir: str = '.') -> str:
         outpath (str): Path where file has been stored.
     '''
     subprocess.call('which gt || apt install gt', shell=True)
-    # subprocess.call('which rg || apt install rg', shell=True)
+    subprocess.call('which rg || apt install rg', shell=True)
 
     create_dir(intronsdir)
-    intronsname = os.path.basename(re.sub('.gff*.gz', '.introns.tsv', inpath) )
+    intronsname = os.path.basename(re.sub(r'gff.*', 'introns.gff', inpath))
     outpath = os.path.abspath(os.path.join(intronsdir, intronsname))
 
     # cmd_awk = r"awk -F'[\t=]' '{print $1,$4,$5,$7,$10}' OFS='\t'"
     # cmd_gt = f"zcat {inpath} | rg '(#|gene_type=protein_coding)' | gt gff3 -retainids -addintrons | rg 'intron' | {cmd_awk} > {outpath}"
-    cmd_gt = f"zcat {inpath} | gt gff3 -retainids -addintrons > {outpath}"
+    cmd_gt = f"zcat {inpath} | gt gff3 -tidy -retainids -addintrons > {outpath}" # tidy option described here http://genometools.org/pipermail/gt-users/2015-August/000794.html
     subprocess.call(cmd_gt, shell=True)
 
     print(f'{outpath} has been generated.')
