@@ -34,7 +34,7 @@ def main():
     # introns = pd.read_csv(introns_path, sep='\t', names =['chr', 'start', 'end', 'strand', 'transcript_id'])
 
 
-def process_sj(inpath: str, samples_ids: {} = None) -> []:
+def process_sj(inpath: str, samples_ids: {} = None) -> []:    
     '''SJ.out.tab processor. Removing non mapped regions and unannotated maps.
 
     STAR manual (4.4) https://physiology.med.cornell.edu/faculty/skrabanek/lab/angsd/lecture_notes/STARmanual.pdf
