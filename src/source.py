@@ -14,7 +14,7 @@ TO DO:
 from __future__ import absolute_import, division, print_function
 
 import ftplib, os, re, subprocess
-from intronator import create_dir
+from .intronator import create_dir
 
 class Gencode():
     
