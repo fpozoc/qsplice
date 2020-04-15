@@ -9,8 +9,7 @@ ___
 [description] 
 
 This file can also be imported as a module and contains the following functions:
-    * create_dir - returns the path of the directory created.
-    * generate_introns - returns the path of the introns file.
+    * 
 
 TO DO:  
     *
@@ -53,23 +52,8 @@ def main():
     df_introns = gff2pandas(gff_path) # converting in pandas data structure 
     df_introns.to_csv(os.path.join(INTRONSDIR, gff_path), index=None, sep='\t') 
 
-    df_introns_annotated = anotate_introns(df_introns)
+    df_introns_annotated = annotate_introns(df_introns)
     df_introns_annotated.to_csv(os.path.join(PROCESSEDDIR, gff_path), index=None, sep='\t')
-
-
-def create_dir(dirpath: str) -> str: 
-    """mkdir -p python equivalent
-    
-    Arguments:
-        dirpath {str} -- Path to create the new folder
-    
-    Returns:
-        absolute_path {str} -- Absolute path of the new folder
-    """    
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-    absolute_path = os.path.abspath(dirpath)
-    return absolute_path
 
 
 def generate_introns(inpath: str, intronsdir: str = '.') -> str:
@@ -87,7 +71,7 @@ def generate_introns(inpath: str, intronsdir: str = '.') -> str:
     subprocess.call('which gt || apt install gt', shell=True)
     subprocess.call('which rg || apt install rg', shell=True)
 
-    create_dir(intronsdir)
+    source.create_dir(intronsdir)
     intronsname = os.path.basename(re.sub(r'gff.*', 'introns.tsv', inpath))
     outpath = os.path.abspath(os.path.join(intronsdir, intronsname))
 
@@ -170,7 +154,7 @@ def get_exons_cds(df: list) -> list:
     return df
 
 
-def anotate_introns(df: list) -> list:
+def annotate_introns(df: list) -> list:
     """Annotating introns cds positions merging exons and cds info.
     
     Arguments:
