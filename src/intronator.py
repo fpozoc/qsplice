@@ -168,7 +168,7 @@ def annotate_introns(df: list) -> list:
     df_exons = get_exons_cds(df_whole)
     df_introns = df_whole[df_whole['type'] == 'intron'].reset_index(drop=True)
 
-    df = pd.concat([df_exons, df_introns], axis=0).reset_index(drop=True).sort_values(by=['gene_name', 'transcript_id', 'start', 'end']).reset_index(drop=True)
+    df = pd.concat([df_exons, df_introns], axis=0).reset_index(drop=True).sort_values(by=['gene_id', 'transcript_id', 'start', 'end'], ascending=[False, True, True, True]).reset_index(drop=True)
     df['nexons'] = df.groupby('transcript_id')['type'].transform(lambda x: x.str.contains('exon').sum())
     df['ncds'] = df.groupby('transcript_id')['cds_coverage'].transform(lambda x: x.str.contains('full|partial').sum())
     df.loc[df['cds_coverage'].isnull(), 'l_intron_coverage'] = df.groupby('transcript_id')['cds_coverage'].shift(1)
