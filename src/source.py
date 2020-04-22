@@ -14,7 +14,21 @@ TO DO:
 from __future__ import absolute_import, division, print_function
 
 import ftplib, os, re, subprocess
-from .intronator import create_dir
+
+def create_dir(dirpath: str) -> str: 
+    """mkdir -p python equivalent
+    
+    Arguments:
+        dirpath {str} -- Path to create the new folder
+    
+    Returns:
+        absolute_path {str} -- Absolute path of the new folder
+    """    
+    if not os.path.exists(dirpath):
+        os.makedirs(dirpath)
+    absolute_path = os.path.abspath(dirpath)
+    return absolute_path
+
 
 class Gencode():
     
