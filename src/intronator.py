@@ -53,7 +53,7 @@ def main():
     df_introns.to_csv(os.path.join(INTRONSDIR, gff_path), index=None, sep='\t') 
 
     df_introns_annotated = annotate_introns(df_introns)
-    df_introns_annotated.to_csv(os.path.join(PROCESSEDDIR, gff_path), index=None, sep='\t')
+    df_introns_annotated.to_csv(os.path.join(PROCESSEDDIR, gff_path).replace('introns', 'complete') + '.gz', index=None, sep='\t')
 
 
 def generate_introns(inpath: str, intronsdir: str = '.') -> str:
