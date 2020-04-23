@@ -25,15 +25,6 @@ __email__ = "fpozoc@cnio.es"
 __status__ = "Production"
 
 
-def main():
-    return 'a'
-    # max_position = df_sjs.drop_duplicates()
-    # max_tissue = df_sjs.drop_duplicates([''])
-
-    # introns_path = '/media/hdd1/fpozoc/projects/appris_rna/data/gencode.v27.annotation.introns.tsv'
-    # introns = pd.read_csv(introns_path, sep='\t', names =['chr', 'start', 'end', 'strand', 'transcript_id'])
-
-
 def process_sj(inpath: str, samples_ids: {} = None) -> []:    
     '''SJ.out.tab processor. Removing non mapped regions and unannotated maps.
 
@@ -46,8 +37,8 @@ def process_sj(inpath: str, samples_ids: {} = None) -> []:
     Returns:
         df (list): pandas DataFrame with file processed.
     '''
-    df = pd.read_csv(inpath, sep='\t', names=['chr', 'start', 'end', 'nstrand', 'intron-motif', 'annotated', 'unique_reads', 'multimapping_reads', 'overhang'])
-    df = df[df['chr'].str.contains('chr')][df['annotated'] == 1][['chr', 'start', 'end', 'nstrand', 'unique_reads']]
+    df = pd.read_csv(inpath, sep='\t', names=['seq_id', 'start', 'end', 'nstrand', 'intron-motif', 'annotated', 'unique_reads', 'multimapping_reads', 'overhang'])
+    df = df[df['seq_id'].str.contains('chr')][df['annotated'] == 1][['seq_id', 'start', 'end', 'nstrand', 'unique_reads']]
     if samples_ids:
         df['tissue'] = samples_ids[os.path.basename(os.path.dirname(inpath))] #adding tissue
     return df
@@ -82,8 +73,6 @@ def concat_samples(indir: str) -> []:
     Returns:
         df (list): pandas DataFrame with all SJ.out.tab concatenated with tissue annotations.
     '''
-    experiment_pattern = 'ER*.1'
-    experiment_filepath = 'E-MTAB-2836.sdrf.txt'
-    glob_path = f'{indir}/{experiment_pattern}/SJ.out.tab'
-    df = pd.concat([process_sj(filepath, parse_emtab(experiment_filepath)) for filepath in glob.glob(glob_path)]).reset_index(drop=True)
+    annotation_dict = parse_emtab('../data/external/E-MTAB-2836.sdrf.txt')
+    df = pd.concat([process_sj(filepath, annotation_dict) for filepath in glob.glob(f'{indir}')]).reset_index(drop=True)
     return df
