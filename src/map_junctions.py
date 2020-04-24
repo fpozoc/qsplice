@@ -51,9 +51,10 @@ def main():
     df_qsj = pd.merge(df_introns_annotated, df_sj_max_position, how='left', on=['seq_id', 'start', 'end'])
     df_qsj.loc[df_qsj['unique_reads'].isnull(), 'unique_reads'] = 0
     df_qsj.loc[df_qsj['unique_reads'].isnull(), 'tissue'] = '-'
-    df_qsj = df_qsj.sort_values(by=['seq_id', 'gene_id', 'transcript_id', 'start', 'end'], ascending=[True, True, True, True]).reset_index(drop=True).fillna('-')
+    df_qsj = df_qsj.sort_values(by=['seq_id', 'gene_id', 'transcript_id', 'start', 'end'], ascending=[True, True, True, True, True]).reset_index(drop=True).fillna('-')
 
-    # Calculating scores
+    # Calculating means and score
+    df_qsj = df_qsj[df_qsj['transcript_type'].str.contains('protein_coding|nonsense_mediated_decay')].reset_index(drop=True)
     df_qsj['gene_mean'] = df_qsj.groupby('gene_id')['unique_reads'].transform(lambda x:x.mean())
     df_qsj['gene_mean_cds'] = df_qsj.loc[df_qsj['cds_coverage'] == 'full'].groupby('gene_id')['unique_reads'].transform(lambda x:x.mean())
 
@@ -62,10 +63,13 @@ def main():
 
     df_qsj['RNA2sj_cds'] = df_qsj['unique_reads']/df_qsj['gene_mean_cds']
     df_qsj['norm_RNA2sj_cds'] = df_qsj.groupby(['gene_id'])['RNA2sj_cds'].transform(lambda x: (x-x.min()) / (x.max()-x.min()))
-
-    df_qsj['min_unique_reads'] = df_qsj.loc[df_qsj['cds_coverage'] == 'full'].groupby('transcript_id')['unique_reads'].transform(lambda x: x.min())
-    
     df_qsj.to_csv(f'../data/processed/sj_maxp.emtab2836.v{args.gencode}.tsv.gz', sep='\t', index=None, compression='gzip')
+
+    # Calculating mins and exporting qsplice
+    df_qsj.loc[df_qsj['cds_coverage'] == 'none', 'unique_reads'] = df_qsj['unique_reads'].max()
+    df_qsj = df_qsj.loc[df_qsj.groupby('transcript_id')['unique_reads'].idxmin()].sort_values(by=['seq_id', 'gene_id', 'transcript_id', 'start', 'end'], ascending=[True, True, True, True, True]).reset_index(drop=True).fillna('-')
+    df_qsj = df_qsj[['seq_id','transcript_id','transcript_type','strand','gene_id','gene_name','gene_type','intron_number','start','end','nexons','ncds','unique_reads','tissue','tissue_group','gene_mean','gene_mean_cds','RNA2sj','norm_RNA2sj','RNA2sj_cds','norm_RNA2sj_cds']]
+    df_qsj.to_csv(f'../data/processed/qsplice.emtab2836.v{args.gencode}.tsv.gz', sep='\t', index=None, compression='gzip')     
 
 if __name__ == "__main__":
     main()
