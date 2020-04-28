@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" generate_introns.py
+""" intronator.py
 
-Usage: python intronator.py --gencode 27
+Usage: python -m src.intronator --version g27
 ___
 --help | -h Display documentation
 
@@ -50,10 +50,10 @@ def main():
     gff_path = generate_introns(path, intronsdir=interim) # generating introns from gff
 
     df_introns = gff2pandas(gff_path) # converting in pandas data structure
-    df_introns.to_csv(os.path.join(interim, gff_path) + '.gz', index=None, sep='\t', compression='gzip')
+    df_introns.to_csv(os.path.join(interim, (gff_path).replace('gff3', 'tsv.gz')), index=None, sep='\t', compression='gzip')
 
     df_introns_annotated = annotate_introns(df_introns)
-    df_introns_annotated.to_csv(os.path.join(processed, (gff_path).replace('introns', 'complete')) + '.gz', index=None, sep='\t', compression='gzip')
+    df_introns_annotated.to_csv(os.path.join(processed, (gff_path).replace('withintrons.gff3', 'complete.tsv.gz')), index=None, sep='\t', compression='gzip')
     os.remove(gff_path)
 
 
@@ -73,8 +73,8 @@ def generate_introns(inpath: str, intronsdir: str = '.') -> str:
     subprocess.call('which rg || apt install rg', shell=True)
 
     source.create_dir(intronsdir)
-    intronsname = os.path.basename(re.sub(r'.annotation.gff3.gz', r'.annotation.withintrons.gff3.gz', inpath)) # used re if user want to add a non gz file as input
-    outpath = os.path.abspath(os.path.join(intronsdir, os.path.basename(inpath)[:-2]))
+    intronsname = os.path.basename(re.sub(r'.annotation.gff3.gz', r'.annotation.withintrons.gff3', inpath)) # used re if user want to add a non gz file as input
+    outpath = os.path.abspath(os.path.join(intronsdir, intronsname))
 
     # cmd_awk = r"awk -F'[\t=]' '{print $1,$4,$5,$7,$10}' OFS='\t'"
     # cmd_gt = f"zcat {inpath} | rg '(#|gene_type=protein_coding)' | gt gff3 -retainids -addintrons | rg 'intron' | {cmd_awk} > {outpath}"
