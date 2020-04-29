@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" source.py
-
-DESCRIPTION 
+""" src/source.py
 
 This file can also be imported as a module and contains the following functions:
+    * create_dir
     * Gencode
 
 TO DO:  
