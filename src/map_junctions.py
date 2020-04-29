@@ -3,7 +3,8 @@
 """ map_junctions.py
 
 Usage: 
-python -m src.map_junctions --version g27 --custom --file
+python -m src.map_junctions --version g27 --custom --file /media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g27/SJ.out.tab.concat.gz
+python -m src.map_junctions --version g33 --glob /media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g29/ER*.1/SJ.out.tab
 
 TO DO:
     *
@@ -27,8 +28,8 @@ __status__ = "Production"
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('-v', '--version', type=str, help='Genome version selected. (g=GENCODE)')
-    parser.add_argument('-g', '--glob', type=str, help='Directory which contains the files to be globbed and concatenated', 
-                        default='/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g29/ER*.1/SJ.out.tab')
+    parser.add_argument('-g', '--globdir', type=str, help='Directory which contains the files to be globbed and concatenated', 
+                        default='/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g29')
     parser.add_argument('-c', '--custom', help='If you want to customize your file.', action='store_true', default=False)
     parser.add_argument('-f', '--file', type=str, help='Custom splice junctions file (in gzip)',
                         default='/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g27/SJ.out.tab.concat.gz')
@@ -40,7 +41,7 @@ def main():
                             names=['seq_id', 'start', 'end', 'nstrand', 'unique_reads', 'tissue'])
     else:
         # concatenating several SJ.out after being annotated and parsed in same pandas DataFrame
-        df_sj = star_sj.concat_samples(args.globdir)
+        df_sj = star_sj.concat_samples(f'{args.globdir}/*/SJ.out.tab')
         # Getting max values per position and per tissue group sample
         df_sj['tissue'] = df_sj['tissue'].str.split('_').str[0]
         
