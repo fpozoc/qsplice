@@ -2,12 +2,8 @@
 # -*- coding: utf-8 -*-
 """ map_junctions.py
 
-Usage: python -m src.map_junctions --version g27 --custom
-
-DESCRIPTION
-
-This file can also be imported as a module and contains the following functions:
-    *
+Usage: 
+python -m src.map_junctions --version g27 --custom --file
 
 TO DO:
     *
@@ -31,19 +27,20 @@ __status__ = "Production"
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('-v', '--version', type=str, help='Genome version selected. (g=GENCODE)')
-    parser.add_argument('-c', '--custom', help='Custom splice junctions file.', action='store_true', default=False)
-    # parser.add_argument('-f', '--file', type=str, help='Custom or not GENCODE gff file.')
+    parser.add_argument('-g', '--glob', type=str, help='Directory which contains the files to be globbed and concatenated', 
+                        default='/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g29/ER*.1/SJ.out.tab')
+    parser.add_argument('-c', '--custom', help='If you want to customize your file.', action='store_true', default=False)
+    parser.add_argument('-f', '--file', type=str, help='Custom splice junctions file (in gzip)',
+                        default='/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g27/SJ.out.tab.concat.gz')
     args = parser.parse_args()
 
     if args.custom:
         # cat /media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g27/ERR*/SJ.out.tab > ./SJ.out.tab.concat && gzip SJ.out.concat 
-        df_sj = pd.read_csv('/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g27/SJ.out.tab.concat.gz', 
-                            compression='gzip', sep='\t', 
+        df_sj = pd.read_csv(args.file, compression='gzip', sep='\t', 
                             names=['seq_id', 'start', 'end', 'nstrand', 'unique_reads', 'tissue'])
     else:
         # concatenating several SJ.out after being annotated and parsed in same pandas DataFrame
-        globdir = f'/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g29/ER*.1/SJ.out.tab'
-        df_sj = star_sj.concat_samples(globdir)
+        df_sj = star_sj.concat_samples(args.globdir)
         # Getting max values per position and per tissue group sample
         df_sj['tissue'] = df_sj['tissue'].str.split('_').str[0]
         
