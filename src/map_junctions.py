@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" map_junctions.py
+""" qsplice/map_junctions.py
 
 Usage: 
 python -m src.map_junctions --version g27 --custom --file /media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g27/SJ.out.tab.concat.gz
 python -m src.map_junctions --version g33 --glob /media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g29/ER*.1/SJ.out.tab
+___
+--help      | -h    Display documentation
+--version   | -v    Genome annotation version. GENCODE: `g` + `nversion`
+--file      | -f    Customized SJ file
+--glob      | -g    Directory which contains the files to be globbed and concatenated
 
 TO DO:
     *
@@ -14,7 +19,7 @@ from __future__ import absolute_import, division, print_function
 
 import argparse, glob, os
 import pandas as pd
-from . import star_sj
+from . import source, star_sj
 
 __author__ = "Fernando Pozo"
 __copyright__ = "Copyright 2020"
@@ -27,10 +32,10 @@ __status__ = "Production"
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('-v', '--version', type=str, help='Genome version selected. (g=GENCODE)')
+    parser.add_argument('-v', '--version', type=str, help='Genome annotation version. GENCODE: `g` + `nversion`')
     parser.add_argument('-g', '--globdir', type=str, help='Directory which contains the files to be globbed and concatenated', 
                         default='/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g29')
-    parser.add_argument('-c', '--custom', help='If you want to customize your file.', action='store_true', default=False)
+    parser.add_argument('-c', '--custom', help='Customized SJ file.', action='store_true', default=False)
     parser.add_argument('-f', '--file', type=str, help='Custom splice junctions file (in gzip)',
                         default='/media/hdd2/fpozoc/projects/rnaseq/out/E-MTAB-2836/GRCh38/STAR/g27/SJ.out.tab.concat.gz')
     args = parser.parse_args()
@@ -44,7 +49,8 @@ def main():
         df_sj = star_sj.concat_samples(f'{args.globdir}/*/SJ.out.tab')
         # Getting max values per position and per tissue group sample
         df_sj['tissue'] = df_sj['tissue'].str.split('_').str[0]
-        
+    
+    source.create_dir(f'data/processed/{args.version}')
     df_sj_max_position = df_sj.sort_values(by=['start', 'end', 'unique_reads'], ascending=[True, True, False]).drop_duplicates(subset=['start', 'end'], keep='first').reset_index(drop=True)
     df_sj_max_position.to_csv(f'data/processed/{args.version}/sj_maxp.emtab2836.{args.version}.tsv.gz', index=None, sep='\t', compression='gzip')
     df_sj_max_tissue = df_sj.sort_values(by=['start', 'end', 'unique_reads'], ascending=[True, True, False]).drop_duplicates(subset=['start', 'end', 'tissue'], keep='first').reset_index(drop=True)

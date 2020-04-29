@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" intronator.py
+""" src/intronator.py
 
 Usage: python -m src.intronator --version g27
 ___
---help | -h Display documentation
-
-[description]
+--help      | -h    Display documentation
+--version   | -v    Genome annotation version. GENCODE: `g` + `nversion`
+--file      | -f    Custom or not GENCODE gff file
 
 This file can also be imported as a module and contains the following functions:
-    *
+    * generate_introns
+    * gff2pandas
+    * annotate_introns
 
 TO DO:
     *
@@ -34,7 +36,7 @@ __status__ = "Production"
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('-v', '--version', type=str, help='GENCODE version selected will start with g.')
+    parser.add_argument('-v', '--version', type=str, help='Genome annotation version. GENCODE: `g` + `nversion`')
     parser.add_argument('-f', '--file', type=str, help='Custom or not GENCODE gff file.')
     args = parser.parse_args()
 

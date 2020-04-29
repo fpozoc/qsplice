@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-""" splice_junctions.py
-
-DESCRIPTION 
+""" src/splice_junctions.py
 
 This file can also be imported as a module and contains the following functions:
-    * 
+    * process_sj
+    * parse_emtab
+    * concat_samples
 
 TO DO:  
     *
@@ -73,6 +73,6 @@ def concat_samples(indir: str) -> []:
     Returns:
         df (list): pandas DataFrame with all SJ.out.tab concatenated with tissue annotations.
     '''
-    annotation_dict = parse_emtab('/media/hdd1/fpozoc/projects/qsplice/data/external/E-MTAB-2836.sdrf.txt')
+    annotation_dict = parse_emtab(os.path.join(os.path.dirname(__file__),'../data/external/E-MTAB-2836.sdrf.txt'))
     df = pd.concat([process_sj(filepath, annotation_dict) for filepath in glob.glob(f'{indir}')]).reset_index(drop=True)
     return df
