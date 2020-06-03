@@ -103,12 +103,12 @@ def map_junctions_positions(df:list):
         df_sj_max_position {list} -- pandas DataFrame with maximum coverage per junction position.
         df_sj_max_tissue {list} -- pandas DataFrame with maximum coverage per junction position and tissue.
     """    
-    df_sj_max_position = df_sj.sort_values(
+    df_sj_max_position = df.sort_values(
         by=['start', 'end', 'unique_reads'], 
         ascending=[True, True, False]).drop_duplicates(subset=['start', 'end'], keep='first').reset_index(drop=True)
     logger.info(f"Mean unique reads per position: {df_sj_max_position['unique_reads'].mean().round(3)}")
 
-    df_sj_max_tissue = df_sj.sort_values(
+    df_sj_max_tissue = df.sort_values(
         by=['start', 'end', 'unique_reads'], 
         ascending=[True, True, False]).drop_duplicates(subset=['start', 'end', 'tissue'], keep='first').reset_index(drop=True)
     logger.info(f"Mean unique reads per tissue and position: {df_sj_max_tissue['unique_reads'].mean().round(3)}")

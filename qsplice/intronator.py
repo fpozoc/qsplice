@@ -124,8 +124,6 @@ def generate_introns(inpath: str, outdir: str) -> str:
     Returns:
         str -- Path where file has been stored.
     """
-    # subprocess.call('which gt || apt install gt', shell=True)
-    # subprocess.call('which rg || apt install rg', shell=True)
     _create_dir(outdir)
     outpath = os.path.abspath(os.path.join(outdir, os.path.basename(re.sub(r'gff', r'introns.gff', inpath))))  # used re if user want to add a non gz file as input
     cmd_gt = f"zcat {inpath} | gt gff3 -tidy -retainids -addintrons | gzip > {outpath}" # tidy option described here http://genometools.org/pipermail/gt-users/2015-August/000794.html
