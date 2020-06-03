@@ -12,6 +12,7 @@ setup(name='QSplice',
       license='GNU General Public License',
       install_requires=
             ['pandas', 
-             'numpy'],
+             'numpy',
+             'loguru'],
       packages=find_packages()
      )

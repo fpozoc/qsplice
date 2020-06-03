@@ -25,11 +25,10 @@ Once you have installed Miniconda/Anaconda, create a Python environment. Clone t
 ```sh
 conda create --name qsplice python=3.7
 conda activate qsplice
-pip install gffpandas
 
 git clone https://gitlab.com/fpozoc/qsplice.git
 cd qsplice
-python setup.py install
+pip install .
 ```
 
 ## Usage
