@@ -58,13 +58,13 @@ To map splice junctions previously generated (see STAR) and calculate `QSplice` 
 User has to add as arguments the version id (again) and the directory with the experiments to be globbed.
 
 ```sh
-python -m src.map_junctions --version g27 --globdir out/E-MTAB-XXXX/GRCh38_GENCODE/STAR/g27
+python -m qsplice.map_junctions --version g27 --globdir out/E-MTAB-XXXX/GRCh38_GENCODE/STAR/g27
 ```
 
 However, if user wants to add a previously customized (and annotated) file:
 
 ```sh
-python -m src.map_junctions --version g27 --custom --file out/E-MTAB-XXXX/GRCh38_GENCODE/STAR/g27/SJ.out.tab.concat.gz
+python -m qsplice.map_junctions --version g27 --custom --file out/E-MTAB-XXXX/GRCh38_GENCODE/STAR/g27/SJ.out.tab.concat.gz
 ```
 
 ## Reference files
