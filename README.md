@@ -97,6 +97,7 @@ In this case, the method selects the splice junction number 5, located between 1
 
 <div align="center">
   <img src="img/qsplice_scheme.png"><br>
+  <figcaption>Figure: ENST00000472795.5 (C1orf112-206) exon distribution scheme to represent how QSplice scores are generated.</figcaption>
 </div>
 
 ## Reference files
