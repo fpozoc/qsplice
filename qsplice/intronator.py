@@ -46,12 +46,7 @@ def main():
     raw = os.path.join(os.path.dirname(__file__), '../data/raw' , f'{args.version}')
     interim = os.path.join(os.path.dirname(__file__), '../data/interim' , f'{args.version}')
 
-    if args.version.lower().startswith('g'):
-        filepath = source.Gencode(version=int(args.version[1:]), specie='human').download(outdir=raw, type='gff3')
-    else:
-        filepath = args.file
-
-    gff_path = generate_introns(filepath, outdir=interim)
+    gff_path = generate_introns(args.file, outdir=interim)
     logger.info(f'Introns generated.')
 
     df_annotations = load_annotations(gff_path, db=args.version[0], outdir=interim)
