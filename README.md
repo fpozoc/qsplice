@@ -128,8 +128,8 @@ column 9: maximum spliced alignment overhang
 
 ## Author information and license
 
-Fernando Pozo ([@fpozoca](https://twitter.com/fpozoca) – fpozoc@cnio.es)
-Michael Tress 
+- Fernando Pozo ([@fpozoca](https://twitter.com/fpozoca) – [Google Scholar](https://scholar.google.com/citations?user=3YLw4PQAAAAJ&hl=en&oi=ao) - fpozoc@cnio.es).
+- Michael Tress.
 
 Distributed under the GNU General Public License. See ``LICENSE`` for more information.
 
