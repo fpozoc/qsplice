@@ -7,7 +7,8 @@ The Snakemake workflow stored in [gitlab.com/fpozoc/appris_rnaseq](https://gitla
 ### Table of Contents
 
 **[Installation Instructions](#installation-instructions)**<br>
-**[Usage](#model-reproducibility)**<br>
+**[Usage](#usage)**<br>
+**[Example: Chromosome 1 open reading frame 112 (C1orf112)](#example-chromosome-1-open-reading-frame-112-c1orf112)**<br>
 **[Author information and license](#author-information-and-license)**<br>
 **[Release History](#release-history)**<br>
 **[Contributing](#contributing)**<br>
@@ -47,7 +48,7 @@ User has to specify the desired version typing `g` or `r` + version number, e.g.
 First, user has to generate introns the genome annotation with `intronator.py` from the reference genome annotation file in gff format.
 
 ```sh
-python -m src.intronator --version g27 --file gencode.v27.annotation.gff3.gz
+python -m qsplice.intronator --version g27 --file gencode.v27.annotation.gff3.gz
 ```
 
 To map splice junctions previously generated (see STAR) and calculate `QSplice` scores per transcript run `map_junctions.py`.
@@ -66,6 +67,37 @@ However, if user wants to add a previously customized (and annotated) file:
 ```sh
 python -m qsplice.map_junctions --version g27 --custom --file out/E-MTAB-XXXX/GRCh38_GENCODE/STAR/g27/SJ.out.tab.concat.gz
 ```
+
+## Example: Chromosome 1 open reading frame 112 (C1orf112)
+
+[ENSG00000000460](https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=ENSG00000000460;r=1:169662007-169854080) (Ensembl) - [Q9NSG2 (CA112_HUMAN)](https://www.uniprot.org/uniprot/Q9NSG2) (UniProt)
+
+`qsplice.emtab2836.g27.tsv.gz` sample output for some isoforms of [ENSG00000000460](https://www.ensembl.org/Homo_sapiens/Gene/Summary?g=ENSG00000000460;r=1:169662007-169854080). 
+
+|gene_name|transcript_id  |intron_number|start    |end      |nexons|ncds|unique_reads|tissue       |gene_mean|gene_mean_cds|RNA2sj|RNA2sj_cds|
+|---------|---------------|-------------|---------|---------|------|----|------------|-------------|---------|-------------|------|----------|
+|C1orf112 |ENST00000286031|6            |169804241|169806003|24    |22  |53          |testis       |69.6     |73.8         |0.8   |0.7       |
+|C1orf112 |ENST00000359326|7            |169804241|169806003|25    |22  |53          |testis       |69.6     |73.8         |0.8   |0.7       |
+|C1orf112 |ENST00000413811|20           |169849605|169850264|23    |14  |62          |testis       |69.6     |73.8         |0.9   |0.8       |
+|C1orf112 |ENST00000459772|2            |169798959|169802620|23    |3   |7           |fallopiantube|69.6     |73.8         |0.1   |0.1       |
+|C1orf112 |ENST00000466580|2            |169798959|169802620|8     |3   |7           |fallopiantube|69.6     |73.8         |0.1   |0.1       |
+|C1orf112 |ENST00000472795|5            |169803310|169804074|6     |4   |57          |testis       |69.6     |73.8         |0.8   |0.8       |
+
+`sj_maxp.emtab2836.g27.mapped.tsv.gz` sample output for the isoform [ENST00000472795](https://www.ensembl.org/Homo_sapiens/Transcript/Summary?db=core;g=ENSG00000000460;r=1:169662007-169854080;t=ENST00000472795).
+
+In this case, the method selects the splice junction number 5, located between 169803310 and 169804074. This splice junction has the maximum coverage value in testis with 57 unique reads spanning the junction. It is the lowest coverage per isoform, if we only take into account introns that has been spanned by coding exons. The final score `RNA2sj` and `RNA2sj_cds` are obtained dividing this score by its respective gene mean.
+
+|gene_name|transcript_id  |intron_number|start    |end      |nexons|ncds|unique_reads|tissue|gene_mean|gene_mean_cds|RNA2sj|RNA2sj_cds|
+|---------|---------------|-------------|---------|---------|------|----|------------|------|---------|-------------|------|----------|
+|C1orf112 |ENST00000472795|1            |169794906|169798856|6     |4   |2           |testis|69.6     |73.8         |0.0   |0.0       |
+|C1orf112 |ENST00000472795|2            |169798959|169800882|6     |4   |69          |testis|69.6     |73.8         |1.0   |0.0       |
+|C1orf112 |ENST00000472795|3            |169800972|169802620|6     |4   |74          |testis|69.6     |73.8         |1.1   |1.0       |
+|C1orf112 |ENST00000472795|4            |169802726|169803168|6     |4   |77          |testis|69.6     |73.8         |1.1   |1.0       |
+|C1orf112 |ENST00000472795|5            |169803310|169804074|6     |4   |57          |testis|69.6     |73.8         |0.8   |0.8       |
+
+<div align="center">
+  <img src="img/qsplice_scheme.png"><br>
+</div>
 
 ## Reference files
 
