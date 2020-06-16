@@ -52,11 +52,10 @@ def main():
                             names=['seqname', 'start', 'end', 'nstrand', 'unique_reads', 'tissue'])
         df_sj = df_sj.drop('nstrand', axis=1)
     else:
-        samples_dir = f'{args.globdir}/*/SJ.out.tab'
-        df_sj = concat_samples(samples_dir) # concatenating several SJ.out after being annotated and parsed in same pandas DataFrame
+        df_sj = concat_samples(f'{args.globdir}/*/SJ.out.tab') # concatenating several SJ.out after being annotated and parsed in same pandas DataFrame
         df_sj['tissue'] = df_sj['tissue'].str.split('_').str[0]  # Getting max values per position and per tissue group sample
 
-    df_sj_max_position, df_sj_max_tissue =  map_junctions_positions(dj_sj)
+    df_sj_max_position, df_sj_max_tissue =  map_junctions_positions(df_sj)
 
     sj_maxp_path = os.path.join(processed, f'sj_maxp.emtab2836.{args.version}.tsv.gz')
     df_sj_max_position.to_csv(sj_maxp_path, index=None, sep='\t', compression='gzip')
@@ -85,7 +84,7 @@ def concat_samples(indir: str) -> []:
         df (list): pandas DataFrame with all SJ.out.tab concatenated with tissue annotations.
     '''
     globbed_dir = glob.glob(f'{indir}')
-    annotation_dict = _parse_emtab(os.path.join(os.path.dirname(__file__),'../data/external/E-MTAB-2836.sdrf.txt'))
+    annotation_dict = _parse_emtab(os.path.join(os.path.dirname(__file__), '../data/external/E-MTAB-2836.sdrf.txt'))
     df = pd.concat([_process_sj(filepath, annotation_dict) for filepath in globbed_dir]).reset_index(drop=True)
     logger.info(f'{len(globbed_dir)} RNA-seq samples loaded and concatenated.')
     return df
@@ -136,7 +135,9 @@ def score_per_junction(df_introns:list, df_sj_max_position:list)->list:
     df['RNA2sj_cds'] = df['unique_reads']/df['gene_mean_cds']
     df['norm_RNA2sj'] = df.groupby(['gene_id'])['RNA2sj'].transform(lambda x: (x-x.min()) / (x.max()-x.min()))
     df['norm_RNA2sj_cds'] = df.groupby(['gene_id'])['RNA2sj_cds'].transform(lambda x: (x-x.min()) / (x.max()-x.min()))
-    logger.info(f'{df.shape[0]} junctions loaded and quantified.')
+    df[df.columns[-6:]] = df[df.columns[-6:]].round(4)
+    df = df.sort_values(by=['seqname', 'gene_id', 'transcript_id', 'start', 'end'])
+    logger.info(f'{df.shape[0]} junctions from protein-coding genes loaded and quantified.')
     return df
 
 
@@ -155,7 +156,9 @@ def score_per_transcript(df:list)->list:
     df = df.loc[df.groupby('transcript_id')['unique_reads'].idxmin()].sort_values(
         by=['seqname', 'gene_id', 'transcript_id', 'start', 'end'], 
         ascending=[True, True, True, True, True]).reset_index(drop=True)
-    logger.info(f'{df.shape[0]} transcripts loaded and quantified.')
+    df = df.drop(['type', 'cds_coverage', 'start', 'end', 'strand', 'intron_number'], axis=1)
+    df = df.sort_values(by=['seqname', 'gene_id', 'transcript_id', 'norm_RNA2sj_cds'], ascending=[True, True, True, False])
+    logger.info(f'{df.shape[0]} transcripts from protein-coding genes loaded and quantified.')
     return df
 
 
@@ -184,11 +187,10 @@ def _parse_emtab(inpath: str) -> {}:
     Returns:
         samples_ids (dict): experiments identifiers with tissues as values.
     '''
-    df = pd.read_csv(inpath, sep ='\t') # read table
+    df = pd.read_csv(inpath, sep ='\t')
     df['Comment[ENA_RUN]'] = df['Comment[ENA_RUN]'].apply(lambda x: x + '.1') # Adds '.1' to sample
-    # df['Source Name'] = df['Source Name'].str.split('_').str[0] # Split by _
     df  = df[['Comment[ENA_RUN]', 'Source Name']].drop_duplicates(subset='Comment[ENA_RUN]').sort_values(by='Comment[ENA_RUN]').reset_index(drop=True) # Dropping duplicates names
-    samples_ids = dict(zip(df['Comment[ENA_RUN]'], df['Source Name'])) # Creates a dict
+    samples_ids = dict(zip(df['Comment[ENA_RUN]'], df['Source Name']))
     return samples_ids
 
 
